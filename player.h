@@ -25,8 +25,9 @@ typedef struct s_joueur{
 
 t_joueur *nouveau_player(int taille);
 void demander_placement_bateaux(t_joueur *pjoueur);
-void demande_tir(t_joueur *pjoueur,t_joueur *padvers);
 void ia_placement_bateaux(t_joueur *ia_joueur);
-void tir_switch(t_possibilite_tir *pposs, int taille, t_joueur *padvers, t_joueur *pjoueur);
+void tir_switch(t_joueur *padvers, t_joueur *pjoueur);
+void free_player(t_joueur *pjoueur);
+void Afficher_grille (int **grille_bateaux,int **grille_tir, int taille);
 
 #endif // PLAYER_H_INC

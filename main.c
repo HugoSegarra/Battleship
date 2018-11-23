@@ -22,7 +22,7 @@ static void flush_stdin(void)
 int main()
 {
 
-    int **grille_bateaux, **grille_tir;
+    t_joueur *joueur1, *joueur2;
     int taille = TAILLE;
 
 
@@ -38,17 +38,25 @@ int main()
 
         switch (choix)
         {
-             case '1' : demander_placement_bateaux(pjoueur);
-                        ia_placement_bateaux(ia_joueur);
+             case '1' : joueur1 = nouveau_player(taille);
+                        joueur2 = nouveau_player(taille);
+                        demander_placement_bateaux(joueur1);
+                        ia_placement_bateaux(joueur2);
+                        tir_switch(joueur1, joueur2);
+                        free_player(joueur1);
+                        free_player(joueur2);
+
+
                         break;
-             case '2' : Afficher_grille(grille_bateaux, grille_tir, taille);
-                        demande_tir(pjoueur, padvers);
-                        tir_switch(pposs, taille, padvers, pjoueur);
+             /*
+             case '2' :// Afficher_grille(grille_bateaux, grille_tir, taille);
+                        //demande_tir(pjoueur, padvers);
+                        //tir_switch(pposs, taille, padvers, pjoueur);
                         break;
-             case '3' : Sauv ();
+             case '3' : //Sauv ();
                         break;
-             case '4' : Charger();
-                        break;
+             case '4' : //Charger();
+                        break; */
              case 'Q' :
              case 'q' : return 0;
                         break;
@@ -62,51 +70,13 @@ int main()
 
 
 
-void Afficher_grille (int **grille_bateaux,int **grille_tir, int taille)
-{
-    int i, j;
 
-        printf("    ");
-    for(i = 0; i < taille; ++i){
-        printf(" %d ", i);
-    }
-    printf("  |  ");
-    printf("    ");
-    for(i = 0; i < taille; ++i){
-        printf(" %d ", i);
-    }
-    putchar('\n');
-    printf("    ");
-    for(i = 0; i<taille; ++i)
-        printf("---");
-    printf("  |  ");
-     printf("    ");
-    for(i = 0; i<taille; ++i)
-        printf("---");
-    putchar('\n');
-
-    for(i=0; i<taille; i++) {
-        printf("%c | ", 'A'+ i);
-        for (j=0; j<taille; j++){
-            printf(" %c ", grille_bateaux[i][j]);
-        }
-        printf("  |  ");
-        printf("%c | ", 'A'+ i);
-        for (j=0; j<taille; j++){
-            printf(" %c ", grille_tir[i][j]);
-        }
-        putchar('\n');
-    }
-}
 
 
 void afficher_menu(void)
 {
  printf("Bataille Navale\n");
  printf("----------------------------\n");
- printf("1 : Placer les bateaux \n");
- printf("2 : Jouer\n");
- printf("3 : Sauvegarder la partie\n");
- printf("4 : Charger la partie\n");
+ printf("1 : Jouer\n");
  printf("q : Quitter\n");
 }

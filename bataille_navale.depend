@@ -15,3 +15,19 @@
 	<string.h>
 	<ctype.h>
 
+1542911697 source:c:\users\cash31\battleship\main.c
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+	<time.h>
+	"player.h"
+
+1542911094 c:\users\cash31\battleship\player.h
+
+1542912783 source:c:\users\cash31\battleship\player.c
+	<stdio.h>
+	<stdlib.h>
+	"player.h"
+	<string.h>
+	<ctype.h>
+

@@ -9,6 +9,7 @@ static void placement_bateaux(int **grille, int taille,  unsigned int x, unsigne
 static int verification_placement(int **grille, int taille, unsigned int x, unsigned int y, char direction, int longueur);
 static void marquage_tir(int **grille_tir, int **grille_bateau_adv,unsigned int x, unsigned int y, t_bateau bateaux_adv[4]);
 static int verification_tir(int **grille_tir, int taille, unsigned int x, unsigned int y);
+static void demande_tir(t_joueur *pjoueur,t_joueur *padvers);
 
 static void flush_stdin(void)
 {
@@ -29,6 +30,53 @@ int **nouvelle_grille (int taille)
         }
     }
     return grille;
+}
+
+static void free_grille(int **grille, int taille)
+{
+    int i;
+    for(i=0; i<taille; ++i){
+        free(grille[i]);
+    }
+    free(grille);
+}
+
+
+void Afficher_grille (int **grille_bateaux,int **grille_tir, int taille)
+{
+    int i, j;
+
+        printf("    ");
+    for(i = 0; i < taille; ++i){
+        printf(" %d ", i);
+    }
+    printf("  |  ");
+    printf("    ");
+    for(i = 0; i < taille; ++i){
+        printf(" %d ", i);
+    }
+    putchar('\n');
+    printf("    ");
+    for(i = 0; i<taille; ++i)
+        printf("---");
+    printf("  |  ");
+     printf("    ");
+    for(i = 0; i<taille; ++i)
+        printf("---");
+    putchar('\n');
+
+    for(i=0; i<taille; i++) {
+        printf("%c | ", 'A'+ i);
+        for (j=0; j<taille; j++){
+            printf(" %c ", grille_bateaux[i][j]);
+        }
+        printf("  |  ");
+        printf("%c | ", 'A'+ i);
+        for (j=0; j<taille; j++){
+            printf(" %c ", grille_tir[i][j]);
+        }
+        putchar('\n');
+    }
 }
 
 t_joueur *nouveau_player(int taille)
@@ -57,6 +105,13 @@ t_joueur *nouveau_player(int taille)
      strncpy(joueur->bateaux[3].nom, "Fregate", NOMBAT_LONG);
 
     return joueur;
+}
+
+void free_player(t_joueur *pjoueur)
+{
+    free_grille(pjoueur->grille_bateaux, pjoueur->taille);
+    free_grille(pjoueur->grille_tir, pjoueur->taille);
+    free(pjoueur);
 
 
 }
@@ -80,7 +135,7 @@ void demander_placement_bateaux(t_joueur *pjoueur)
             direction = toupper(direction);
         }while(status != 3 || x >= pjoueur->taille || y >= pjoueur->taille || ( direction != 'N' && direction != 'S' && direction != 'E' && direction != 'O') );
 
-        if (verification_placement(pjoueur->grille_bateaux, pjoueur->taille, x, y, direction, pjoueur->bateaux[j].longueur) == 1){
+        if ( verification_placement(pjoueur->grille_bateaux, pjoueur->taille, x, y, direction, ((pjoueur->bateaux)[j]).longueur) == 1){
             pjoueur->bateaux[j].x = x;
             pjoueur->bateaux[j].y = y;
             pjoueur->bateaux[j].sens = direction;
@@ -96,13 +151,14 @@ void demander_placement_bateaux(t_joueur *pjoueur)
 
 int verification_placement(int **grille, int taille, unsigned int x, unsigned int y, char direction, int longueur)
 {
-    int occupe = 0;
     int i;
+    int occupe = 0;
+
 
     switch (direction)
     {
     case 'N':
-        if (y - longueur - 1 < 0)
+        if (y - longueur + 1 >= taille)
             return 0;
         break;
     case 'S':
@@ -114,7 +170,7 @@ int verification_placement(int **grille, int taille, unsigned int x, unsigned in
             return 0;
         break;
     case 'O':
-        if (x - longueur - 1 < 0)
+        if (x - longueur + 1 < 0)
             return 0;
         break;
     default: printf("Mauvaise direction !\n");
@@ -288,7 +344,10 @@ static t_liste *prepend(int x, int y, char direction, t_liste *liste)
 
 static void free_liste(t_liste *liste)
 {
+
     t_liste *courant, *suivant;
+
+    courant = liste;
     while (courant != NULL){
         suivant = courant->next;
         free(courant);
@@ -387,7 +446,7 @@ static int nb_bateaux(t_joueur *pjoueur)
     int j, c;
     j=4;
 
-    for (c=0; c < 3; ++c){
+    for (c=0; c < 4; ++c){
         if (pjoueur->bateaux[c].longueur == pjoueur->bateaux[c].nbtouche){
             --j;
         }
@@ -434,41 +493,47 @@ static t_position *attribution_tir(t_possibilite_tir *pposs){
     t_position z;
 
     i = rand()% pposs->tailleff;
-    z.x = pposs->t[i].x ;
+    z.x = pposs->t[i].x;
     z.y = pposs->t[i].y;
 
-    pposs->t[i].x =pposs->t[pposs->tailleff].x;
-    pposs->t[i].y = pposs->t[pposs->tailleff].y;
+    pposs->t[i].x = pposs->t[pposs->tailleff-1].x;
+ pposs->t[i].y = pposs->t[pposs->tailleff-1].y;
 
-     pposs->t[pposs->tailleff].x = z.x;
-     pposs->t[pposs->tailleff].y = z.y;
+     pposs->t[pposs->tailleff-1].x = z.x;
+          pposs->t[pposs->tailleff-1].y = z.y;
 
      pposs->tailleff -= 1;
 
-     return &(pposs->t[pposs->tailleff]);
+     return &(pposs->t[pposs->tailleff-1]);
 }
 
 
-
-void tir_switch(t_possibilite_tir *pposs, int taille, t_joueur *padvers, t_joueur *pjoueur)
+void tir_switch(t_joueur *pjoueur, t_joueur *padvers)
 {
+
     int i;
+	t_possibilite_tir *ppos; /* variable locale à la fonction */
+	t_position *pos;
     i=0;
-    while(nb_bateaux(pjoueur)!= 0){
+	ppos = init_possibilite(pjoueur->taille); /* S'initialise une fois par partie ( génère toutes les possibilités de tir ) */
+    while(nb_bateaux(pjoueur)!= 0 && nb_bateaux(padvers) != 0){ /* Verification aussi que l'adversaire n'a pas perdu */
+		/* AFFICHER LA GRILLE DU JOUEUR, qqch comme :
+		affichage_grille(pjoueur); */
+        Afficher_grille (pjoueur->grille_bateaux, pjoueur->grille_tir, pjoueur->taille);
         if ((i%2) == 0){
             demande_tir(pjoueur, padvers);
         }else{
-            init_possibilite(taille);
-            attribution_tir(pposs);
-            free_possibilite(pposs);
+            pos = attribution_tir(ppos);
+            printf("Adversaire tire a %u %c... ", pos->x, pos->y + 'A');
+			marquage_tir(padvers->grille_tir, pjoueur->grille_bateaux, pos->x, pos->y, pjoueur->bateaux);
         }
      ++i;
     }
+	free_possibilite(ppos);
     if (i%2 == 0){
     printf("Partie finie ! Vous avez perdu");
     }else{
     printf("Partie finie ! Vous avez gagné");
     }
 }
-
 
