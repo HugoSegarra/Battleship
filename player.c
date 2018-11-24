@@ -488,25 +488,24 @@ static void free_possibilite(t_possibilite_tir *pposs){
     free(pposs);
 }
 
+
 static t_position *attribution_tir(t_possibilite_tir *pposs){
     int i;
     t_position z;
 
+    /* Choix d'un index dans [0, tailleff-1] */
     i = rand()% pposs->tailleff;
-    z.x = pposs->t[i].x;
-    z.y = pposs->t[i].y;
 
-    pposs->t[i].x = pposs->t[pposs->tailleff-1].x;
- pposs->t[i].y = pposs->t[pposs->tailleff-1].y;
+    /* Index de la derniere position non choisie dans le tableau */
+    pposs->tailleff -= 1;
 
-     pposs->t[pposs->tailleff-1].x = z.x;
-          pposs->t[pposs->tailleff-1].y = z.y;
+    /* Echange avec l'element choisi */
+    z = pposs->t[i];
+    pposs->t[i] = pposs->t[pposs->tailleff];
+    pposs->t[pposs->tailleff] = z;
 
-     pposs->tailleff -= 1;
-
-     return &(pposs->t[pposs->tailleff-1]);
+    return &(pposs->t[pposs->tailleff]);
 }
-
 
 void tir_switch(t_joueur *pjoueur, t_joueur *padvers)
 {
